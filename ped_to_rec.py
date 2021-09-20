@@ -75,7 +75,6 @@ def write_rec_file(output_path, sorted_ped_path, female_rec_map, male_rec_map):
 					chromosome_size_M=chr_sizes_M[chromosome]
 					curr_chr_rec_map_M=rec_map[chromosome][0]
 					curr_chr_rec_map_bp=rec_map[chromosome][1]
-					print(chromosome, chromosome_size_M)
 					new_chromosome=Chr(chromosome_size_M)
 					new_chromosome.convert_cM_to_bP_binary_search(curr_chr_rec_map_M, curr_chr_rec_map_bp)
 					parental_rec_sites.append(new_chromosome.rec_pos_bp)
@@ -91,22 +90,3 @@ def write_rec_file(output_path, sorted_ped_path, female_rec_map, male_rec_map):
 male_rec_map=read_rec_map(args.rec_path_male)
 female_rec_map=read_rec_map(args.rec_path_female)
 write_rec_file(args.output_path, args.ped_path, female_rec_map, male_rec_map)
-
-"""
-if args.m_suffix and args.f_suffix:
-	#list the recombination maps available
-	male_map_files=[args.rec_path+file for file in os.listdir(args.rec_path) if file[0:len(args.m_suffix)]==args.m_suffix]
-	female_map_files=[args.rec_path+file for file in os.listdir(args.rec_path) if file[0:len(args.f_suffix)]==args.f_suffix]
-	#read the corresponding recombination map
-	male_rec_maps=read_rec_map(male_map_files)
-	female_rec_maps=read_rec_map(female_map_files)
-	write_rec_file(args.output_path, args.sorted_ped_path, female_rec_maps, male_rec_maps)
-elif args.m_suffix or args.f_suffix:
-	raise Exception("Lacking suffix for one of the sex: please use -m and -f arguments together, but not one alone") 
-else:
-	#list the recombination maps available
-	map_files=[args.rec_path+file for file in os.listdir(args.rec_path)] 
-	#read the corresponding recombination map
-	rec_maps=read_rec_map(map_files) 
-	write_rec_file(args.output_path, args.sorted_ped_path, rec_maps)
-"""
