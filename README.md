@@ -1,5 +1,5 @@
 # Baby_Simulator #
-Based on recombination maps, a pedigree and a vcf/bcf, <b>Baby_Simulator</b> simulate genomes. \
+Based on recombination maps, a pedigree and a vcf/bcf, <b>Baby_Simulator</b> simulate genomes.
 
 # How to #
 Here we imagine you have a .ped "example_ped.ped" and a bcf file "example_chr22.bcf" as the one present in Example/ \
