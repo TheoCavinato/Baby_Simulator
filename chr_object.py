@@ -14,7 +14,7 @@ class Chr:
         self.rec_pos_bp=[]
 
     def inverse_CDF(self,x, lbda):
-        return -(math.log(1-x)/lbda)
+        return -(math.log(1-x)/1)
     def generate_rec_pos(self):
         #   Create a list containing the recombintation positions in cM
         rec_pos=0
@@ -30,35 +30,39 @@ class Chr:
             iterator+=1
 
     def convert_cM_to_bP_binary_search(self, M_list, bP_list):
-        #   Convert the list of recombnation sites in cM into a list of recombination sites in bp
-        self.start_time=time.time()
-        self.rec_pos_bp=[]
-        for rec_pos in self.rec_pos_M:
-            l=0
-            r=len(M_list)-1
-            if rec_pos < M_list[0]: # if the recombination site in M is inferior to the first recombination site in M of the recombination map
-                self.rec_pos_bp.append("NA")
-                break
-            if rec_pos>M_list[-2]:  # if the recombination site in M is between the last element and th before last element of the M recombination map
-                top_value_bp, bottom_value_bp=bP_list[-1], bP_list[-2]
-                top_value_M, bottom_value_M=M_list[-1], M_list[-2]
+            #   Convert the list of recombnation sites in M into a list of recombination sites in bp
+            self.rec_pos_bp=[]
+            for rec_pos in self.rec_pos_M:
+
+                # if element not comprised between the maximum and minimum value of the Recombination Map's M_list
+                if rec_pos < M_list[0] or rec_pos > M_list[-1]:
+                    self.rec_pos_bp.append("None")
+                    break
+
+                low = 0  
+                high = len(M_list) - 1  
+                mid = 0  
+
+                while low <= high:  
+                    # for get integer result   
+                    mid = (high + low) // 2  
+
+
+                    # Check if n is present at mid   
+                    if M_list[mid] < rec_pos:  
+                        low = mid + 1  
+
+                    # If n is greater, compare to the right of mid   
+                    elif M_list[mid] > rec_pos:  
+                        high = mid - 1  
+
+                    # If n is smaller, compared to the left of mid  
+                    else:  
+                        self.rec_pos_bp.append(bP_list[mid])
+                        break
+
+                # element was not present in the list, return the elements between which it is comprised
+                top_value_bp, bottom_value_bp = bP_list[low], bP_list[high]
+                top_value_M, bottom_value_M = M_list[low], M_list[high]
                 converted_rec_pos=((rec_pos-bottom_value_M)/(top_value_M-bottom_value_M))*(top_value_bp-bottom_value_bp)+bottom_value_bp
                 self.rec_pos_bp.append(converted_rec_pos)
-                break
-            while True:
-                mid=(l+r)//2
-                top_value_M=M_list[mid]
-                bottom_value_M=M_list[mid-1]
-                if mid < 0:
-                    self.rec_pos_bp.append("NA")
-                    break
-                if rec_pos > bottom_value_M and rec_pos < top_value_M:
-                    top_value_bp=bP_list[mid]
-                    bottom_value_bp=bP_list[mid-1]
-                    converted_rec_pos=((rec_pos-bottom_value_M)/(top_value_M-bottom_value_M))*(top_value_bp-bottom_value_bp)+bottom_value_bp
-                    self.rec_pos_bp.append(converted_rec_pos)
-                    break
-                elif rec_pos < bottom_value_M:
-                    r=mid-1
-                elif rec_pos > top_value_M:
-                    l=mid+1
