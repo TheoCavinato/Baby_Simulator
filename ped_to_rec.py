@@ -18,27 +18,9 @@ args = parser.parse_args()
 #	FUNCTIONS	#
 #########################
 
-def get_inds_sex(sorted_ped_path):
-	sorted_ped=open(sorted_ped_path, 'r')
-	female_sex_list, male_sex_list=set(),set()
-
-	for line in sorted_ped:
-		splt_line=line.split()
-		child_ID, sex= splt_line[1], int(splt_line[4])
-		if sex==2:
-			female_sex_list.add(child_ID)
-		elif sex==1:
-			male_sex_list.add(child_ID)
-
-	return (female_sex_list, male_sex_list) 
-
 def write_rec_file(output_path, sorted_ped_path, female_rec_map, male_rec_map):
 	sorted_ped=open(sorted_ped_path, 'r')
 	output_file=open(output_path,'w')
-
-	female_list, male_list = get_inds_sex(sorted_ped_path)
-	if len(female_list & male_list):
-		raise Exception("Some individuals have both sex in the pedigree file")
 
 	#ensure boh rec_map have the same chromosome
 	male_chr, female_chr = set(female_rec_map.keys()), set(male_rec_map.keys())
@@ -54,13 +36,13 @@ def write_rec_file(output_path, sorted_ped_path, female_rec_map, male_rec_map):
 		new_rec_line=line.split()
 		parent_1_ID, parent_2_ID = new_rec_line[2:4]
 		if parent_1_ID!='NA' and parent_2_ID!='NA': # if we know the parents of the children
-			for parent in [parent_1_ID, parent_2_ID]: #one recombination list per parent
+			for sex_parent in range(2): #one recombination list per parent
 				parental_rec_sites=[]
 
-				if parent in female_list:
+				if sex_parent == 1:
 					rec_map=female_rec_map
 					chr_sizes_M=all_chr_sizes[0]
-				elif parent in male_list:
+				elif sex_parent == 0:
 					rec_map=male_rec_map
 					chr_sizes_M=all_chr_sizes[1]
 				else:
