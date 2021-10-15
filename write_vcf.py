@@ -1,5 +1,5 @@
 from pysam import VariantFile
-import ast, time, argparse
+import ast, time, argparse, random
 
 #########################
 #	USER ARGUMENTS	#
@@ -37,7 +37,7 @@ for chr in range(len(child_rec_sites[0][0])):
 #################################
 
 def haplo_chooser(meiosis):
-	haplo_chooser=0
+	haplo_chooser=random.randint(0,1)
 	if len(meiosis):
 		for rec_site in meiosis:
 			if rec_site > position:
