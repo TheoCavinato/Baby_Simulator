@@ -61,6 +61,7 @@ output_samples.extend(all_childs)
 original_header=str(bcf_input.header)[:-1]
 original_header+='\t'+'\t'.join(all_childs)
 
+print(original_header)
 
 toss_a_coin=[random.randint(0,1) for _ in range(len(all_childs))]
 parent_position=[(output_samples.index(child_parents[child][0]), output_samples.index(child_parents[child][1])) for child in all_childs]
