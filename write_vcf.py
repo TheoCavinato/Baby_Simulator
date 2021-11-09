@@ -30,7 +30,7 @@ for line in rec_file:
 child_rec_sites_reversed=[[] for i in range(len(child_rec_sites[0][0]))]
 for chr in range(len(child_rec_sites[0][0])):
 	for ind_rec_site in child_rec_sites:
-		child_rec_sites_reversed[chr].append((ind_rec_site[0][chr], ind_rec_site[0][chr]))
+		child_rec_sites_reversed[chr].append((ind_rec_site[0][chr], ind_rec_site[1][chr]))
 
 #################################
 #	Read the variant file	#
@@ -71,7 +71,6 @@ for record in bcf_input:
 	chromosome = int(record.chrom)-1
 	position = record.pos
 	alleles=[al['GT'] for al in record.samples.values()]
-
 
 	#-------Take the allele resulting from the meiosis for each parent-------#
 
