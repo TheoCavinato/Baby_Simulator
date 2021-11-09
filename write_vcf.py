@@ -36,8 +36,8 @@ for chr in range(len(child_rec_sites[0][0])):
 #	Read the variant file	#
 #################################
 
-def haplo_chooser(meiosis):
-	haplo_chooser=random.randint(0,1)
+def haplo_chooser(meiosis,toss_result):
+	haplo_chooser=toss_result
 	if len(meiosis):
 		for rec_site in meiosis:
 			if rec_site > position:
@@ -61,8 +61,8 @@ output_samples.extend(all_childs)
 original_header=str(bcf_input.header)[:-1]
 original_header+='\t'+'\t'.join(all_childs)
 
-print(original_header)
 
+toss_a_coin=[random.randint(0,1) for _ in range(len(all_childs))]
 parent_position=[(output_samples.index(child_parents[child][0]), output_samples.index(child_parents[child][1])) for child in all_childs]
 
 for record in bcf_input:
@@ -74,8 +74,8 @@ for record in bcf_input:
 
 	#-------Take the allele resulting from the meiosis for each parent-------#
 
-	for parent_rec_sites, pos_parent in zip(child_rec_sites_reversed[chromosome], parent_position):
-		out_haplo=tuple(str(alleles[parent][haplo_chooser(rec_sites)]) for rec_sites, parent in zip(parent_rec_sites, pos_parent))
+	for parent_rec_sites, pos_parent, toss in zip(child_rec_sites_reversed[chromosome], parent_position, toss_a_coin):
+		out_haplo=tuple(str(alleles[parent][haplo_chooser(rec_sites, toss)]) for rec_sites, parent in zip(parent_rec_sites, pos_parent))
 		alleles.append(out_haplo)
 			
 	#-------Add alleles to the record-------#
