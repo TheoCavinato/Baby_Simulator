@@ -1,5 +1,5 @@
 from pysam import VariantFile
-import ast, time, argparse, random
+import ast, time, argparse, random, sys
 
 #########################
 #	USER ARGUMENTS	#
@@ -20,7 +20,7 @@ for line in rec_file:
 	splt_line=line.split("\t")
 	child_id, dad_id, mom_id, = splt_line[1:4]
 
-	dad_rec, mom_rec=splt_line[-2:]
+	dad_rec, mom_rec=splt_line[6], splt_line[7]
 	all_childs.append(child_id)
 
 	child_parents[child_id]=(dad_id, mom_id)
@@ -37,19 +37,17 @@ for chr in range(len(child_rec_sites[0][0])):
 #################################
 
 def haplo_chooser(meiosis,toss_result):
-	haplo_chooser=toss_result
-	if len(meiosis):
-		for rec_site in meiosis:
-			if rec_site > position:
-				break
-			haplo_chooser+=1
-	else:
-		return 0
+    haplo_chooser=toss_result
+    if len(meiosis):
+            for rec_site in meiosis:
+                    if rec_site > position:
+                            break
+                    haplo_chooser+=1
 
-	if haplo_chooser%2:
-		return 0
-	else:
-		return 1
+    if haplo_chooser%2:
+            return 0
+    else:
+            return 1
 
 
 bcf_input= VariantFile(args.vcf_file_path)
@@ -63,23 +61,32 @@ original_header+='\t'+'\t'.join(all_childs)
 
 print(original_header)
 
-toss_a_coin=[random.randint(0,1) for _ in range(len(all_childs))]
+toss_a_coin_per_chr={}
+metadata_writer=open(args.rec_file_path+".meta.txt", 'w')
+for chr in range(1,23):
+    rand_seed = random.randrange(sys.maxsize)
+    rng_chr = random.Random(rand_seed)
+    toss_a_coin=[rng_chr.randint(0,1) for _ in range(len(all_childs))]
+    toss_a_coin_per_chr[str(chr)]=toss_a_coin
+    metadata_writer.write(str(rand_seed))
+    metadata_writer.write("\n")
+metadata_writer.close()
+
 parent_position=[(output_samples.index(child_parents[child][0]), output_samples.index(child_parents[child][1])) for child in all_childs]
 
 for record in bcf_input:
-	start_time=time.time()
-	chromosome = int(record.chrom)-1
-	position = record.pos
-	alleles=[al['GT'] for al in record.samples.values()]
+    start_time=time.time()
+    chromosome = int(record.chrom)-1
+    position = record.pos
+    alleles=[al['GT'] for al in record.samples.values()]
 
-	#-------Take the allele resulting from the meiosis for each parent-------#
+    #-------Take the allele resulting from the meiosis for each parent-------#
+    for parent_rec_sites, pos_parent, toss in zip(child_rec_sites_reversed[chromosome], parent_position, toss_a_coin_per_chr[record.chrom]):
+            out_haplo=tuple(str(alleles[parent][haplo_chooser(rec_sites, toss)]) for rec_sites, parent in zip(parent_rec_sites, pos_parent))
+            alleles.append(out_haplo)
+                    
+    #-------Add alleles to the record-------#
 
-	for parent_rec_sites, pos_parent, toss in zip(child_rec_sites_reversed[chromosome], parent_position, toss_a_coin):
-		out_haplo=tuple(str(alleles[parent][haplo_chooser(rec_sites, toss)]) for rec_sites, parent in zip(parent_rec_sites, pos_parent))
-		alleles.append(out_haplo)
-			
-	#-------Add alleles to the record-------#
-
-	output_record=str(record)[:-1]
-	output_record+='\t'+'\t'.join(['|'.join(all) for all in alleles[original_alleles_length:]])
-	print(output_record)
+    output_record=str(record)[:-1]
+    output_record+='\t'+'\t'.join(['|'.join(all) for all in alleles[original_alleles_length:]])
+    print(output_record)

@@ -1,4 +1,5 @@
-import random as rand
+import random
+import sys
 import math
 import time
 from read_rec_maps import *
@@ -7,8 +8,9 @@ import os
 
 #   This modified Chr object will have for different functions, one for each process
 class Chr:
-    def __init__(self, chr_size_M ):
+    def __init__(self, chr_size_M, rng):
         self.chr_size_M=chr_size_M
+        self.rng = rng
         self.rec_pos_M=[]
         self.generate_rec_pos()
         self.rec_pos_bp=[]
@@ -22,9 +24,9 @@ class Chr:
         iterator=0
         while True:
             if rec_pos==0:
-                rec_pos=self.inverse_CDF(rand.uniform(0,1))
+                rec_pos=self.inverse_CDF(self.rng.uniform(0,1))
             else:
-                rec_pos=self.rec_pos_M[(iterator-1)]+self.inverse_CDF(rand.uniform(0,1))
+                rec_pos=self.rec_pos_M[(iterator-1)]+self.inverse_CDF(self.rng.uniform(0,1))
             if rec_pos > self.chr_size_M:
                 break
             self.rec_pos_M.append(rec_pos)
